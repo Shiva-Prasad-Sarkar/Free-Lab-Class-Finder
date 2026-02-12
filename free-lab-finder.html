@@ -1,0 +1,872 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Free Lab Finder</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            padding: 40px;
+        }
+
+        h1 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 5px;
+            font-size: 2.5em;
+        }
+
+        .semester {
+            text-align: center;
+            color: #667eea;
+            font-size: 1.2em;
+            font-weight: 600;
+            margin-bottom: 10px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .subtitle {
+            text-align: center;
+            color: #666;
+            margin-bottom: 20px;
+            font-size: 1.1em;
+        }
+
+        .routine-link {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .routine-link a {
+            display: inline-block;
+            padding: 10px 20px;
+            background: white;
+            color: #667eea;
+            text-decoration: none;
+            border-radius: 8px;
+            border: 2px solid #667eea;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+
+        .routine-link a:hover {
+            background: #667eea;
+            color: white;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.3);
+        }
+
+        .selection-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            margin-bottom: 30px;
+        }
+
+        .select-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        label {
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 10px;
+            font-size: 1.1em;
+        }
+
+        select {
+            padding: 12px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 1em;
+            cursor: pointer;
+            transition: all 0.3s;
+            background: white;
+        }
+
+        select:hover {
+            border-color: #667eea;
+        }
+
+        select:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .btn-find {
+            grid-column: 1 / -1;
+            padding: 15px 30px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 1.2em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+            margin-top: 10px;
+        }
+
+        .btn-find:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
+        }
+
+        .btn-find:active {
+            transform: translateY(0);
+        }
+
+        .results {
+            margin-top: 30px;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 10px;
+            min-height: 100px;
+        }
+
+        .results-header {
+            font-size: 1.3em;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #667eea;
+        }
+
+        .lab-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+            gap: 15px;
+            margin-top: 15px;
+        }
+
+        .lab-card {
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            text-align: center;
+            font-weight: 600;
+            color: #667eea;
+            border: 2px solid #667eea;
+            transition: all 0.3s;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+
+        .lab-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.3);
+            background: #667eea;
+            color: white;
+        }
+
+        .footer {
+            margin-top: 40px;
+            padding-top: 20px;
+            border-top: 2px solid #e0e0e0;
+            text-align: center;
+        }
+
+        .github-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            padding: 12px 24px;
+            background: #24292e;
+            color: white;
+            text-decoration: none;
+            border-radius: 8px;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+
+        .github-link:hover {
+            background: #444;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+        }
+
+        .github-icon {
+            width: 24px;
+            height: 24px;
+            fill: white;
+        }
+
+        .no-results {
+            text-align: center;
+            color: #888;
+            font-style: italic;
+            padding: 30px;
+        }
+
+        .stats {
+            margin-top: 15px;
+            padding: 15px;
+            background: white;
+            border-radius: 8px;
+            text-align: center;
+        }
+
+        .stats span {
+            font-size: 1.2em;
+            font-weight: 600;
+            color: #667eea;
+        }
+
+        @media (max-width: 600px) {
+            .selection-container {
+                grid-template-columns: 1fr;
+            }
+
+            .lab-grid {
+                grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+            }
+
+            h1 {
+                font-size: 2em;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔬 Free Lab Finder</h1>
+        <p class="semester">Spring 2026</p>
+        <p class="subtitle">Find available labs for your preferred day and time</p>
+        
+        <div class="routine-link">
+            <a href="https://docs.google.com/spreadsheets/d/1fFFKWxbTffAU_4hIjSUPzFTHaRTHWRtyjjuCsfWDjD4/edit?gid=2069304119#gid=2069304119" target="_blank">📅 View Full Routine</a>
+        </div>
+
+        <div class="selection-container">
+            <div class="select-group">
+                <label for="daySelect">Select Day:</label>
+                <select id="daySelect">
+                    <option value="">-- Choose a Day --</option>
+                    <option value="SUN">Sunday</option>
+                    <option value="MON">Monday</option>
+                    <option value="TUE">Tuesday</option>
+                    <option value="WED">Wednesday</option>
+                    <option value="THU">Thursday</option>
+                    <option value="SAT">Saturday</option>
+                </select>
+            </div>
+
+            <div class="select-group">
+                <label for="timeSelect">Select Time:</label>
+                <select id="timeSelect">
+                    <option value="">-- Choose a Time --</option>
+                    <option value="8:00 AM">8:00 AM - 11:00 AM</option>
+                    <option value="11:00 AM">11:00 AM - 2:00 PM</option>
+                    <option value="2:00 PM">2:00 PM - 5:00 PM</option>
+                </select>
+            </div>
+
+            <button class="btn-find" onclick="findFreeLabs()">Find Free Labs</button>
+        </div>
+
+        <div class="results" id="results" style="display:none;">
+            <div class="results-header" id="resultsHeader"></div>
+            <div class="lab-grid" id="labGrid"></div>
+            <div class="stats" id="stats"></div>
+        </div>
+
+        <div class="footer">
+            <a href="https://github.com/Shiva-Prasad-Sarkar" target="_blank" class="github-link">
+                <svg class="github-icon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z"/>
+                </svg>
+                GitHub
+            </a>
+        </div>
+    </div>
+
+    <script>
+        // CSV data embedded
+        const csvData = `,,
+Lab Day,Lab Time (3hr),Lab Room
+THU,11:00 AM,FT11-04L
+THU,2:00 PM,FT11-04L
+SAT,8:00 AM,FT11-03L
+TUE,2:00 PM,FT11-03L
+SAT,11:00 AM,FT11-03L
+SAT,2:00 PM,FT11-03L
+SAT,2:00 PM,12B-18L
+WED,11:00 AM,09B-08L
+WED,11:00 AM,09B-09L
+WED,2:00 PM,09B-09L
+THU,8:00 AM,09B-08L
+THU,11:00 AM,09B-08L
+THU,8:00 AM,09B-11L
+WED,2:00 PM,09B-08L
+WED,8:00 AM,09B-09L
+WED,8:00 AM,09B-10L
+THU,8:00 AM,09B-09L
+WED,11:00 AM,09B-10L
+WED,8:00 AM,09E-21L
+THU,2:00 PM,09B-09L
+THU,11:00 AM,09B-11L
+THU,11:00 AM,09B-10L
+THU,2:00 PM,09B-10L
+THU,2:00 PM,09B-11L
+WED,11:00 AM,09B-11L
+TUE,11:00 AM,09B-08L
+WED,8:00 AM,09E-22L
+WED,11:00 AM,09E-22L
+WED,2:00 PM,09B-11L
+TUE,2:00 PM,09B-08L
+WED,2:00 PM,12F-32L
+WED,2:00 PM,12D-27L
+THU,11:00 AM,12F-32L
+WED,11:00 AM,09E-21L
+WED,2:00 PM,09B-10L
+TUE,8:00 AM,09B-09L
+TUE,11:00 AM,09B-09L
+TUE,2:00 PM,09B-09L
+TUE,8:00 AM,09B-10L
+WED,8:00 AM,09F-24L
+TUE,11:00 AM,09B-10L
+WED,11:00 AM,09F-24L
+WED,2:00 PM,09F-24L
+WED,8:00 AM,09F-26L
+TUE,2:00 PM,09B-10L
+TUE,8:00 AM,09B-11L
+SUN,11:00 AM,09B-10L
+SUN,8:00 AM,09B-11L
+MON,8:00 AM,09B-08L
+MON,11:00 AM,09B-08L
+SUN,8:00 AM,09B-08L
+SUN,11:00 AM,09B-08L
+MON,8:00 AM,09F-24L
+MON,8:00 AM,09B-09L
+MON,2:00 PM,09B-08L
+SUN,8:00 AM,09B-09L
+MON,11:00 AM,09B-09L
+MON,2:00 PM,09B-09L
+MON,8:00 AM,09B-10L
+SUN,11:00 AM,09B-09L
+SUN,2:00 PM,09B-09L
+MON,11:00 AM,09B-10L
+MON,2:00 PM,09B-10L
+SUN,8:00 AM,09B-10L
+SUN,2:00 PM,09B-10L
+MON,8:00 AM,09B-11L
+SUN,2:00 PM,09B-11L
+MON,11:00 AM,09B-11L
+MON,2:00 PM,09B-11L
+MON,11:00 AM,09F-24L
+MON,8:00 AM,09E-21L
+SAT,8:00 AM,09B-08L
+SUN,8:00 AM,09F-26L
+SUN,11:00 AM,09F-26L
+SUN,2:00 PM,09F-26L
+SAT,11:00 AM,09B-08L
+SAT,2:00 PM,09B-10L
+SUN,8:00 AM,09F-27L
+SUN,11:00 AM,09F-27L
+SUN,2:00 PM,09F-27L
+SAT,2:00 PM,09B-08L
+SAT,8:00 AM,09B-09L
+SAT,11:00 AM,09B-09L
+SAT,2:00 PM,09B-09L
+SAT,8:00 AM,09B-10L
+SAT,8:00 AM,09B-11L
+SAT,11:00 AM,09B-11L
+SAT,11:00 AM,09B-10L
+SUN,8:00 AM,09F-25L
+SUN,11:00 AM,09F-25L
+SUN,2:00 PM,09F-25L
+SUN,11:00 AM,09B-11L
+SUN,8:00 AM,09E-21L
+SUN,11:00 AM,09E-21L
+SAT,2:00 PM,09B-11L
+MON,11:00 AM,12B-20L
+MON,11:00 AM,12B-20L
+WED,2:00 PM,12B-20L
+WED,2:00 PM,12B-20L
+SAT,8:00 AM,12B-20L
+SAT,8:00 AM,12B-20L
+THU,11:00 AM,12B-20L
+THU,11:00 AM,12B-20L
+MON,8:00 AM,12B-20L
+MON,8:00 AM,12B-20L
+SUN,2:00 PM,12B-20L
+SUN,2:00 PM,12B-20L
+TUE,8:00 AM,12B-20L
+TUE,8:00 AM,12B-20L
+THU,2:00 PM,12B-20L
+THU,2:00 PM,12B-20L
+TUE,11:00 AM,12B-20L
+TUE,11:00 AM,12B-20L
+SUN,8:00 AM,12B-20L
+SUN,8:00 AM,12B-20L
+WED,11:00 AM,12B-20L
+WED,11:00 AM,12B-20L
+SUN,11:00 AM,12B-20L
+SUN,11:00 AM,12B-20L
+SAT,11:00 AM,12B-20L
+SAT,11:00 AM,12B-20L
+MON,2:00 PM,12B-20L
+MON,2:00 PM,12B-20L
+SAT,2:00 PM,FT10-01L
+SAT,2:00 PM,FT10-02L
+THU,8:00 AM,12B-20L
+THU,8:00 AM,12B-20L
+WED,8:00 AM,FT10-01L
+WED,8:00 AM,FT10-02L
+MON,11:00 AM,FT10-01L
+MON,11:00 AM,FT10-02L
+TUE,2:00 PM,FT10-01L
+TUE,2:00 PM,FT10-02L
+SAT,11:00 AM,FT10-01L
+WED,8:00 AM,FT10-03L
+THU,11:00 AM,FT10-02L
+SUN,11:00 AM,FT10-01L
+SUN,11:00 AM,FT10-02L
+TUE,11:00 AM,FT10-01L
+TUE,2:00 PM,FT10-03L
+WED,2:00 PM,FT10-01L
+WED,11:00 AM,FT10-02L
+SAT,8:00 AM,FT10-04L
+SAT,8:00 AM,FT11-01L
+THU,2:00 PM,FT10-04L
+THU,2:00 PM,FT11-01L
+THU,8:00 AM,FT10-04L
+THU,8:00 AM,FT11-01L
+SAT,11:00 AM,FT10-04L
+SAT,11:00 AM,FT11-01L
+THU,11:00 AM,FT10-04L
+THU,11:00 AM,FT11-01L
+THU,8:00 AM,FT10-02L
+THU,8:00 AM,FT10-03L
+TUE,11:00 AM,FT10-04L
+TUE,11:00 AM,FT11-01L
+WED,8:00 AM,FT10-04L
+WED,8:00 AM,FT11-01L
+WED,11:00 AM,FT10-04L
+WED,11:00 AM,FT11-01L
+SUN,11:00 AM,FT10-04L
+SUN,11:00 AM,FT11-01L
+TUE,8:00 AM,FT10-02L
+TUE,8:00 AM,FT10-03L
+SUN,8:00 AM,FT10-04L
+SUN,8:00 AM,FT10-02L
+SUN,8:00 AM,FT10-03L
+SAT,2:00 PM,FT10-04L
+SAT,2:00 PM,FT11-01L
+MON,8:00 AM,FT10-04L
+MON,8:00 AM,FT11-01L
+TUE,11:00 AM,FT10-02L
+TUE,11:00 AM,FT10-03L
+MON,2:00 PM,FT10-02L
+MON,2:00 PM,FT10-03L
+SAT,11:00 AM,FT10-02L
+SAT,11:00 AM,FT10-03L
+MON,11:00 AM,FT10-04L
+MON,11:00 AM,FT11-01L
+WED,2:00 PM,FT10-04L
+WED,2:00 PM,FT11-01L
+TUE,8:00 AM,FT10-04L
+TUE,8:00 AM,FT11-01L
+THU,2:00 PM,FT10-02L
+THU,2:00 PM,FT10-03L
+SAT,8:00 AM,FT10-02L
+SAT,8:00 AM,FT10-03L
+SUN,2:00 PM,FT10-04L
+SUN,2:00 PM,FT11-01L
+TUE,2:00 PM,FT10-04L
+TUE,2:00 PM,FT11-01L
+WED,2:00 PM,FT10-02L
+WED,2:00 PM,FT10-03L
+MON,2:00 PM,FT10-04L
+MON,2:00 PM,FT11-01L
+SAT,8:00 AM,12D-27L
+SUN,8:00 AM,12D-26L
+SUN,11:00 AM,12D-26L
+SAT,11:00 AM,12D-27L
+MON,8:00 AM,12D-27L
+SAT,8:00 AM,12D-26L
+SAT,11:00 AM,12D-26L
+SAT,2:00 PM,12D-26L
+SUN,2:00 PM,12D-26L
+SUN,8:00 AM,12D-27L
+SUN,11:00 AM,12D-27L
+SUN,2:00 PM,12D-27L
+THU,8:00 AM,12D-27L
+THU,11:00 AM,12D-27L
+MON,11:00 AM,12D-27L
+TUE,11:00 AM,12D-27L
+MON,11:00 AM,12D-26L
+WED,8:00 AM,12D-27L
+THU,8:00 AM,12D-26L
+THU,11:00 AM,12D-26L
+TUE,8:00 AM,12D-26L
+TUE,11:00 AM,12D-26L
+TUE,2:00 PM,12D-26L
+TUE,8:00 AM,12D-27L
+WED,11:00 AM,12D-27L
+MON,2:00 PM,12D-26L
+MON,8:00 AM,12D-26L
+THU,2:00 PM,12D-26L
+WED,8:00 AM,12D-26L
+WED,11:00 AM,12D-26L
+WED,2:00 PM,12D-26L
+SAT,8:00 AM,09F-27L
+TUE,11:00 AM,09E-21L
+TUE,2:00 PM,09E-21L
+SAT,11:00 AM,09F-27L
+WED,11:00 AM,09F-26L
+SAT,2:00 PM,09F-27L
+SUN,8:00 AM,09E-22L
+SUN,11:00 AM,09E-22L
+SUN,2:00 PM,09E-22L
+SUN,8:00 AM,12F-32L
+MON,11:00 AM,09E-21L
+MON,11:00 AM,09F-25L
+MON,2:00 PM,09E-21L
+MON,8:00 AM,09E-22L
+WED,8:00 AM,09F-25L
+THU,8:00 AM,09E-22L
+THU,11:00 AM,09E-22L
+THU,2:00 PM,09E-22L
+THU,2:00 PM,09F-27L
+WED,11:00 AM,09F-27L
+WED,2:00 PM,09F-26L
+TUE,2:00 PM,09B-11L
+TUE,11:00 AM,09B-11L
+SAT,2:00 PM,09F-25L
+TUE,8:00 AM,12F-32L
+SAT,8:00 AM,09E-22L
+SAT,11:00 AM,09E-22L
+THU,8:00 AM,09F-27L
+THU,11:00 AM,09E-21L
+SUN,8:00 AM,12F-31L
+TUE,11:00 AM,09F-25L
+MON,11:00 AM,09F-26L
+MON,2:00 PM,09F-25L
+WED,11:00 AM,10G-33L
+WED,2:00 PM,10G-33L
+SAT,2:00 PM,09E-22L
+MON,8:00 AM,FT10-01L
+MON,8:00 AM,FT10-02L
+SAT,2:00 PM,12B-20L
+SAT,2:00 PM,12B-20L
+THU,8:00 AM,FT10-01L
+MON,8:00 AM,FT10-03L
+WED,11:00 AM,FT10-03L
+WED,11:00 AM,FT10-01L
+THU,11:00 AM,FT10-03L
+THU,11:00 AM,FT10-01L
+SUN,2:00 PM,FT10-01L
+SUN,2:00 PM,FT10-02L
+SUN,8:00 AM,FT10-01L
+MON,2:00 PM,FT10-01L
+TUE,2:00 PM,12B-20L
+TUE,2:00 PM,12B-20L
+SUN,11:00 AM,FT10-03L
+SUN,2:00 PM,FT10-03L
+WED,8:00 AM,12B-20L
+WED,8:00 AM,12B-20L
+TUE,8:00 AM,FT10-01L
+MON,11:00 AM,FT10-03L
+TUE,2:00 PM,10G-33L
+SAT,2:00 PM,10G-33L
+THU,11:00 AM,10G-33L
+SUN,2:00 PM,10G-33L
+THU,11:00 AM,10G-33L
+TUE,2:00 PM,10G-33L
+SUN,2:00 PM,10G-33L
+SAT,2:00 PM,10G-33L
+WED,8:00 AM,10G-33L
+WED,8:00 AM,12F-30L
+WED,11:00 AM,12F-30L
+TUE,8:00 AM,12F-31L
+TUE,11:00 AM,12F-31L
+TUE,2:00 PM,12F-31L
+WED,2:00 PM,12F-30L
+THU,8:00 AM,12F-30L
+SUN,8:00 AM,12F-30L
+THU,11:00 AM,12F-30L
+THU,2:00 PM,12F-30L
+THU,8:00 AM,12F-31L
+SUN,11:00 AM,12F-30L
+SUN,2:00 PM,12F-30L
+SAT,8:00 AM,12F-30L
+SAT,8:00 AM,12F-31L
+SAT,11:00 AM,12F-31L
+SAT,2:00 PM,12F-31L
+MON,8:00 AM,12F-32L
+MON,11:00 AM,12F-32L
+MON,2:00 PM,12F-32L
+MON,2:00 PM,09F-27L
+TUE,11:00 AM,10G-33L
+MON,2:00 PM,10E-27L
+TUE,2:00 PM,FT11-04L
+THU,2:00 PM,09E-21L
+THU,2:00 PM,12F-32L
+THU,2:00 PM,12F-32L
+SAT,11:00 AM,12F-32L
+SAT,11:00 AM,12F-32L
+SAT,8:00 AM,12F-32L
+SAT,8:00 AM,12F-32L
+SUN,2:00 PM,12F-32L
+SUN,2:00 PM,12F-32L
+SUN,11:00 AM,12F-32L
+SUN,11:00 AM,12F-32L
+TUE,11:00 AM,12F-32L
+TUE,11:00 AM,12F-32L
+MON,8:00 AM,12F-31L
+MON,8:00 AM,12F-31L
+MON,11:00 AM,12F-31L
+MON,11:00 AM,12F-31L
+WED,11:00 AM,12F-31L
+WED,11:00 AM,12F-31L
+WED,8:00 AM,12F-32L
+WED,8:00 AM,12F-32L
+SAT,8:00 AM,09F-25L
+SAT,8:00 AM,09F-25L
+SAT,11:00 AM,09F-25L
+THU,8:00 AM,09F-25L
+THU,8:00 AM,09F-25L
+THU,11:00 AM,09F-25L
+TUE,2:00 PM,09F-25L
+TUE,2:00 PM,09F-25L
+SAT,11:00 AM,09F-25L
+SUN,2:00 PM,10E-27L
+SUN,2:00 PM,10E-27L
+TUE,11:00 AM,09E-22L
+TUE,11:00 AM,09E-22L
+MON,11:00 AM,09E-22L
+SUN,11:00 AM,10E-27L
+SUN,11:00 AM,10E-27L
+WED,11:00 AM,09F-25L
+WED,11:00 AM,09F-25L
+WED,2:00 PM,09F-25L
+WED,2:00 PM,09F-25L
+THU,11:00 AM,09F-25L
+MON,2:00 PM,09E-22L
+MON,2:00 PM,09E-22L
+MON,11:00 AM,09E-22L
+TUE,8:00 AM,09F-25L
+TUE,8:00 AM,09F-25L
+SUN,8:00 AM,10G-34L
+SUN,11:00 AM,10G-34L
+WED,2:00 PM,10G-34L
+SUN,2:00 PM,09B-08L
+MON,8:00 AM,10G-34L
+MON,11:00 AM,10G-34L
+MON,2:00 PM,10G-34L
+WED,2:00 PM,09F-27L
+THU,8:00 AM,10G-34L
+THU,11:00 AM,10G-34L
+THU,2:00 PM,10G-34L
+TUE,8:00 AM,09F-27L
+THU,2:00 PM,09F-26L
+SUN,8:00 AM,10E-27L
+SAT,8:00 AM,10G-34L
+SAT,2:00 PM,10G-34L
+TUE,11:00 AM,10G-34L
+TUE,2:00 PM,10G-34L
+SAT,11:00 AM,10G-34L
+WED,8:00 AM,10G-34L
+WED,11:00 AM,10G-34L
+SAT,11:00 AM,09F-24L
+SAT,11:00 AM,10G-32L
+TUE,8:00 AM,10G-34L
+THU,11:00 AM,09F-27L
+SAT,8:00 AM,09F-24L
+TUE,8:00 AM,10E-27L
+TUE,8:00 AM,10E-27L
+SAT,8:00 AM,10E-27L
+SAT,8:00 AM,10E-27L
+SAT,11:00 AM,10E-27L
+SAT,11:00 AM,10E-27L
+THU,8:00 AM,10E-27L
+TUE,11:00 AM,10E-27L
+TUE,11:00 AM,10E-27L
+SUN,11:00 AM,12F-31L
+SUN,11:00 AM,12F-31L
+SUN,2:00 PM,12F-31L
+THU,8:00 AM,10E-27L
+THU,2:00 PM,10E-27L
+SUN,2:00 PM,12F-31L
+SAT,2:00 PM,10E-27L
+SAT,2:00 PM,10E-27L
+THU,2:00 PM,10E-27L
+MON,8:00 AM,10E-27L
+MON,8:00 AM,10E-27L
+MON,11:00 AM,10E-27L
+MON,11:00 AM,10E-27L
+WED,11:00 AM,12F-32L
+WED,11:00 AM,12F-32L
+WED,2:00 PM,12F-31L
+WED,2:00 PM,12F-31L
+TUE,2:00 PM,10E-27L
+TUE,2:00 PM,10E-27L
+THU,11:00 AM,FT11-03L
+MON,2:00 PM,12F-30L
+MON,8:00 AM,12F-30L
+TUE,11:00 AM,09F-27L
+TUE,2:00 PM,09F-27L
+MON,11:00 AM,12F-30L
+TUE,8:00 AM,09E-22L
+TUE,8:00 AM,09B-08L
+MON,2:00 PM,09F-26L
+MON,8:00 AM,09F-25L
+TUE,8:00 AM,12F-30L
+THU,2:00 PM,09F-24L
+TUE,2:00 PM,09F-24L
+WED,11:00 AM,10E-27L
+TUE,11:00 AM,12F-30L
+TUE,11:00 AM,12F-30L
+SAT,11:00 AM,12F-30L
+SAT,11:00 AM,12F-30L
+THU,11:00 AM,10E-27L
+TUE,2:00 PM,09E-22L
+WED,8:00 AM,09F-27L
+MON,2:00 PM,09F-24L
+MON,2:00 PM,10G-32L
+MON,11:00 AM,10G-33L
+SUN,2:00 PM,10G-32L
+THU,11:00 AM,09F-24L
+SAT,8:00 AM,09E-21L
+TUE,11:00 AM,09F-24L
+TUE,2:00 PM,09F-26L
+SAT,2:00 PM,09E-21L
+SAT,8:00 AM,10G-32L
+SAT,2:00 PM,10G-32L
+THU,11:00 AM,10G-32L
+THU,2:00 PM,10G-32L
+SUN,11:00 AM,10G-32L
+MON,11:00 AM,10G-32L
+TUE,2:00 PM,10G-32L
+WED,8:00 AM,10G-32L
+MON,8:00 AM,10G-32L
+SAT,2:00 PM,12D-27L
+THU,8:00 AM,09F-26L
+THU,11:00 AM,09F-26L
+SAT,11:00 AM,09F-26L
+SAT,2:00 PM,09F-26L
+SAT,8:00 AM,09F-26L
+SUN,2:00 PM,09E-21L
+SUN,8:00 AM,10G-32L
+MON,11:00 AM,09F-27L
+TUE,8:00 AM,09F-26L
+TUE,11:00 AM,09F-26L
+WED,11:00 AM,10G-32L
+WED,2:00 PM,10G-32L
+TUE,2:00 PM,12F-30L
+THU,8:00 AM,09F-24L
+THU,11:00 AM,09B-09L
+SUN,2:00 PM,FT11-04L
+MON,11:00 AM,FT11-03L`;
+
+        // Parse CSV and create data structure
+        function parseCSV() {
+            const lines = csvData.trim().split('\n');
+            const occupiedLabs = {};
+            const allLabs = new Set();
+            
+            // Skip first 3 lines (header)
+            for (let i = 3; i < lines.length; i++) {
+                const parts = lines[i].split(',');
+                if (parts.length >= 3 && parts[0] && parts[1] && parts[2]) {
+                    const day = parts[0].trim();
+                    const time = parts[1].trim();
+                    const room = parts[2].trim();
+                    
+                    allLabs.add(room);
+                    
+                    const key = `${day}-${time}`;
+                    if (!occupiedLabs[key]) {
+                        occupiedLabs[key] = [];
+                    }
+                    occupiedLabs[key].push(room);
+                }
+            }
+            
+            return { occupiedLabs, allLabs: Array.from(allLabs).sort() };
+        }
+
+        const { occupiedLabs, allLabs } = parseCSV();
+
+        function findFreeLabs() {
+            const day = document.getElementById('daySelect').value;
+            const time = document.getElementById('timeSelect').value;
+            const resultsDiv = document.getElementById('results');
+            const resultsHeader = document.getElementById('resultsHeader');
+            const labGrid = document.getElementById('labGrid');
+            const statsDiv = document.getElementById('stats');
+
+            if (!day || !time) {
+                alert('Please select both day and time');
+                return;
+            }
+
+            const key = `${day}-${time}`;
+            const occupied = occupiedLabs[key] || [];
+            const occupiedSet = new Set(occupied);
+            const freeLabs = allLabs.filter(lab => !occupiedSet.has(lab));
+
+            // Display results
+            resultsDiv.style.display = 'block';
+            
+            const dayNames = {
+                'SUN': 'Sunday',
+                'MON': 'Monday',
+                'TUE': 'Tuesday',
+                'WED': 'Wednesday',
+                'THU': 'Thursday',
+                'SAT': 'Saturday'
+            };
+
+            const timeDisplay = time === '8:00 AM' ? '8:00 AM - 11:00 AM' :
+                               time === '11:00 AM' ? '11:00 AM - 2:00 PM' :
+                               '2:00 PM - 5:00 PM';
+
+            resultsHeader.textContent = `Free Labs on ${dayNames[day]} (${timeDisplay})`;
+
+            if (freeLabs.length === 0) {
+                labGrid.innerHTML = '<div class="no-results">No free labs available for this time slot</div>';
+                statsDiv.innerHTML = '<span>0 labs available</span>';
+            } else {
+                labGrid.innerHTML = freeLabs.map(lab => 
+                    `<div class="lab-card">${lab}</div>`
+                ).join('');
+                statsDiv.innerHTML = `<span>${freeLabs.length} lab${freeLabs.length !== 1 ? 's' : ''} available</span>`;
+            }
+
+            // Scroll to results
+            resultsDiv.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        }
+
+        // Allow pressing Enter to search
+        document.getElementById('daySelect').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') findFreeLabs();
+        });
+        document.getElementById('timeSelect').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') findFreeLabs();
+        });
+    </script>
+</body>
+</html>
