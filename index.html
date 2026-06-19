@@ -34,6 +34,38 @@
             font-size: 2.5em;
         }
 
+        .semester-toggle {
+            display: flex;
+            justify-content: center;
+            gap: 0;
+            margin: 15px auto 10px;
+            border-radius: 30px;
+            overflow: hidden;
+            width: fit-content;
+            border: 2px solid #667eea;
+        }
+
+        .semester-toggle button {
+            padding: 10px 24px;
+            border: none;
+            background: white;
+            color: #667eea;
+            font-size: 0.95em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.25s;
+            letter-spacing: 0.5px;
+        }
+
+        .semester-toggle button.active {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .semester-toggle button:not(.active):hover {
+            background: #f0f2ff;
+        }
+
         .semester {
             text-align: center;
             color: #667eea;
@@ -54,6 +86,7 @@
         .routine-link {
             text-align: center;
             margin-bottom: 30px;
+            min-height: 44px;
         }
 
         .routine-link a {
@@ -73,6 +106,15 @@
             color: white;
             transform: translateY(-2px);
             box-shadow: 0 5px 15px rgba(102, 126, 234, 0.3);
+        }
+
+        .routine-link .no-link {
+            display: inline-block;
+            padding: 10px 20px;
+            color: #aaa;
+            border-radius: 8px;
+            border: 2px dashed #ddd;
+            font-weight: 600;
         }
 
         .selection-container {
@@ -251,11 +293,17 @@
 <body>
     <div class="container">
         <h1>🔬 Free Lab Finder</h1>
-        <p class="semester">Spring 2026</p>
+
+        <div class="semester-toggle">
+            <button id="btnSpring" class="active" onclick="setSemester('spring2026')">Spring 2026</button>
+            <button id="btnSummer" onclick="setSemester('summer2026')">Summer 2026</button>
+        </div>
+
+        <p class="semester" id="semesterLabel">Spring 2026</p>
         <p class="subtitle">Find available labs for your preferred day and time</p>
-        
-        <div class="routine-link">
-            <a href="https://docs.google.com/spreadsheets/d/1fFFKWxbTffAU_4hIjSUPzFTHaRTHWRtyjjuCsfWDjD4/edit?gid=2069304119#gid=2069304119" target="_blank">📅 View Full Routine</a>
+
+        <div class="routine-link" id="routineLinkContainer">
+            <a id="routineLink" href="https://docs.google.com/spreadsheets/d/1fFFKWxbTffAU_4hIjSUPzFTHaRTHWRtyjjuCsfWDjD4/edit?gid=2069304119#gid=2069304119" target="_blank">📅 View Full Routine</a>
         </div>
 
         <div class="selection-container">
@@ -302,8 +350,8 @@
     </div>
 
     <script>
-        // CSV data embedded
-        const csvData = `Lab Day,Lab Time (3hr),Lab Room
+        // ── Spring 2026 ──────────────────────────────────────────────────────────
+        const csvSpring2026 = `Lab Day,Lab Time (3hr),Lab Room
 SUN,11:00 AM,FT11-04L
 TUE,11:00 AM,FT11-03L
 THU,2:00 PM,FT11-04L
@@ -389,28 +437,18 @@ SAT,2:00 PM,09B-11L
 SUN,2:00 PM,09E-22L
 SUN,8:00 AM,09F-24L
 SAT,2:00 PM,12B-20L
-SAT,2:00 PM,12B-20L
-THU,2:00 PM,12B-20L
 THU,2:00 PM,12B-20L
 MON,8:00 AM,12B-20L
-MON,8:00 AM,12B-20L
-WED,11:00 AM,12B-20L
 WED,11:00 AM,12B-20L
 SUN,2:00 PM,FT10-01L
 SAT,8:00 AM,12B-20L
-SAT,8:00 AM,12B-20L
-THU,8:00 AM,12B-20L
 THU,8:00 AM,12B-20L
 TUE,11:00 AM,FT10-01L
 TUE,11:00 AM,FT11-01L
 SUN,11:00 AM,12B-20L
-SUN,11:00 AM,12B-20L
 TUE,8:00 AM,FT10-01L
 MON,11:00 AM,12B-20L
-MON,11:00 AM,12B-20L
 WED,2:00 PM,12B-20L
-WED,2:00 PM,12B-20L
-SAT,11:00 AM,12B-20L
 SAT,11:00 AM,12B-20L
 THU,8:00 AM,FT10-01L
 THU,8:00 AM,FT11-01L
@@ -418,12 +456,9 @@ MON,8:00 AM,FT10-01L
 MON,8:00 AM,FT11-01L
 WED,8:00 AM,12B-20L
 THU,11:00 AM,12B-20L
-THU,11:00 AM,12B-20L
 SAT,2:00 PM,FT10-01L
 SAT,2:00 PM,FT11-01L
 SUN,8:00 AM,12B-20L
-SUN,8:00 AM,12B-20L
-TUE,11:00 AM,12B-20L
 TUE,11:00 AM,12B-20L
 SUN,11:00 AM,FT10-01L
 SUN,11:00 AM,FT11-01L
@@ -553,22 +588,14 @@ THU,2:00 PM,FT11-01L
 THU,11:00 AM,FT10-01L
 THU,11:00 AM,FT11-01L
 TUE,2:00 PM,12B-20L
-TUE,2:00 PM,12B-20L
-TUE,8:00 AM,12B-20L
 TUE,8:00 AM,12B-20L
 SUN,8:00 AM,FT10-01L
 MON,2:00 PM,12B-20L
-MON,2:00 PM,12B-20L
-SUN,2:00 PM,12B-20L
 SUN,2:00 PM,12B-20L
 WED,11:00 AM,FT10-01L
 WED,2:00 PM,10G-33L
-WED,2:00 PM,10G-33L
 MON,2:00 PM,10G-32L
 TUE,2:00 PM,10G-32L
-SAT,2:00 PM,10G-32L
-TUE,2:00 PM,10G-32L
-MON,2:00 PM,10G-32L
 SAT,2:00 PM,10G-32L
 THU,8:00 AM,12F-31L
 TUE,11:00 AM,12F-31L
@@ -593,50 +620,28 @@ MON,2:00 PM,FT11-03L
 TUE,8:00 AM,10E-27L
 SUN,8:00 AM,10G-34L
 SAT,11:00 AM,10E-27L
-SAT,11:00 AM,10E-27L
 THU,11:00 AM,10E-27L
-THU,11:00 AM,10E-27L
-SUN,8:00 AM,10G-34L
-SUN,11:00 AM,10E-27L
 SUN,11:00 AM,10E-27L
 MON,11:00 AM,10E-27L
-MON,11:00 AM,10E-27L
-MON,2:00 PM,10E-27L
 MON,2:00 PM,10E-27L
 WED,11:00 AM,10E-27L
-WED,11:00 AM,10E-27L
-TUE,2:00 PM,10E-27L
 TUE,2:00 PM,10E-27L
 TUE,8:00 AM,10E-27L
 WED,11:00 AM,12F-31L
-WED,11:00 AM,12F-31L
-THU,8:00 AM,09F-25L
 THU,8:00 AM,09F-25L
 SAT,2:00 PM,09F-25L
-SAT,2:00 PM,09F-25L
-SAT,11:00 AM,09F-25L
 SAT,11:00 AM,09F-25L
 SAT,8:00 AM,09F-25L
 WED,2:00 PM,09F-25L
-WED,2:00 PM,09F-25L
 WED,11:00 AM,09F-25L
 THU,2:00 PM,09F-25L
-THU,2:00 PM,09F-25L
-TUE,2:00 PM,09F-25L
 TUE,2:00 PM,09F-25L
 TUE,11:00 AM,09F-24L
-TUE,11:00 AM,09F-24L
-WED,11:00 AM,09F-25L
 SUN,8:00 AM,10E-27L
 SAT,8:00 AM,09F-25L
 MON,8:00 AM,09F-25L
 SUN,2:00 PM,10E-27L
-SUN,2:00 PM,10E-27L
-MON,8:00 AM,09F-25L
 MON,11:00 AM,09F-25L
-MON,11:00 AM,09F-25L
-THU,11:00 AM,09F-25L
-SUN,8:00 AM,10E-27L
 THU,11:00 AM,09F-25L
 TUE,11:00 AM,09F-25L
 WED,8:00 AM,09F-26L
@@ -662,37 +667,22 @@ TUE,2:00 PM,09F-26L
 SAT,2:00 PM,09F-26L
 SAT,8:00 AM,09F-27L
 SAT,11:00 AM,09F-27L
-SAT,11:00 AM,09F-27L
 TUE,11:00 AM,09E-22L
-TUE,11:00 AM,09E-22L
-SAT,2:00 PM,09F-27L
 SAT,2:00 PM,09F-27L
 TUE,2:00 PM,09F-24L
 MON,8:00 AM,09E-22L
-MON,8:00 AM,09E-22L
 TUE,2:00 PM,09F-24L
 SUN,2:00 PM,09F-25L
-SUN,2:00 PM,09F-25L
-MON,2:00 PM,09E-22L
 MON,2:00 PM,09E-22L
 WED,8:00 AM,10E-27L
-WED,8:00 AM,10E-27L
-WED,2:00 PM,12F-31L
 WED,2:00 PM,12F-31L
 WED,11:00 AM,09F-24L
 SUN,8:00 AM,09F-27L
-WED,11:00 AM,09F-24L
 WED,2:00 PM,09F-24L
 THU,11:00 AM,09F-24L
-THU,11:00 AM,09F-24L
-SUN,8:00 AM,09F-27L
-MON,11:00 AM,12D-26L
 MON,11:00 AM,12D-26L
 MON,8:00 AM,09F-27L
-MON,8:00 AM,09F-27L
 TUE,8:00 AM,09F-27L
-TUE,8:00 AM,09F-27L
-TUE,11:00 AM,09F-27L
 TUE,11:00 AM,09F-27L
 MON,11:00 AM,09F-26L
 MON,11:00 AM,09F-27L
@@ -707,8 +697,6 @@ TUE,2:00 PM,09B-10L
 MON,8:00 AM,09F-26L
 MON,2:00 PM,12D-26L
 SUN,11:00 AM,12F-30L
-SUN,11:00 AM,12F-30L
-TUE,11:00 AM,12F-32L
 TUE,11:00 AM,12F-32L
 TUE,11:00 AM,10E-27L
 SAT,8:00 AM,09F-24L
@@ -756,90 +744,150 @@ SUN,2:00 PM,10G-34L
 THU,2:00 PM,12D-26L
 SAT,2:00 PM,FT11-03L`;
 
-        // Parse CSV and create data structure
-        function parseCSV() {
-            const lines = csvData.trim().split('\n');
-            const occupiedLabs = {};
-            const allLabs = new Set();
-            
-            // Skip first line (header)
+        // ── Summer 2026 — free labs stored directly per slot ────────────────────
+        const summer2026FreeLabs = {
+            'SAT-8:00 AM':  ['10G-34L','12D-26L','12F-30L','09B-11L','09E-21L','09F-25L'],
+            'SAT-11:00 AM': ['09B-08L','09B-09L','09B-10L','09E-22L','12B-20L'],
+            'SAT-2:00 PM':  ['11B-20L','09B-08L'],
+            'SUN-8:00 AM':  ['12F-31L','09B-08L','09B-09L','09B-10L'],
+            'SUN-11:00 AM': ['09B-08L','09B-09L','09B-10L','09E-22L'],
+            'SUN-2:00 PM':  ['09B-08L','09B-09L','09B-10L','09E-21L','09E-22L'],
+            'MON-8:00 AM':  ['10G-34L','09F-26L','12F-30L','FT10-01L','FT10-02L','10G-33L','12F-32L','12D-27L','09B-11L'],
+            'MON-11:00 AM': ['09B-08L','09B-09L','09B-10L'],
+            'MON-2:00 PM':  ['12D-27L','09F-27L','09E-21L','12F-30L','10G-32L','09F-25L'],
+            'TUE-8:00 AM':  ['12F-31L','09B-11L','09E-21L','09B-08L','10G-32L'],
+            'TUE-11:00 AM': ['FT11-03L','09B-08L'],
+            'TUE-2:00 PM':  ['09B-10L','10E-27L','09F-25L'],
+            'WED-8:00 AM':  ['09B-08L','09B-09L','09B-10L'],
+            'WED-11:00 AM': ['10E-27L','09B-10L','10G-32L','09F-25L'],
+            'WED-2:00 PM':  ['FT11-03L','09B-09L'],
+            'THU-8:00 AM':  ['09F-27L','12F-30L','12D-27L','09B-11L','09F-24L'],
+            'THU-11:00 AM': ['09B-08L','09F-27L','09B-09L'],
+            'THU-2:00 PM':  ['09B-08L','09B-09L','09B-11L','09E-21L']
+        };
+
+        const semesterConfig = {
+            spring2026: {
+                label: 'Spring 2026',
+                mode: 'occupied',
+                csv: csvSpring2026,
+                routineUrl: 'https://docs.google.com/spreadsheets/d/1fFFKWxbTffAU_4hIjSUPzFTHaRTHWRtyjjuCsfWDjD4/edit?gid=2069304119#gid=2069304119'
+            },
+            summer2026: {
+                label: 'Summer 2026',
+                mode: 'direct',
+                freeLabs: summer2026FreeLabs,
+                routineUrl: null
+            }
+        };
+
+        let currentSemester = 'spring2026';
+        let occupiedLabs = {};
+        let allLabs = [];
+
+        function parseCSV(csv) {
+            const lines = csv.trim().split('\n');
+            const occupied = {};
+            const labSet = new Set();
+
             for (let i = 1; i < lines.length; i++) {
                 const parts = lines[i].split(',');
                 if (parts.length >= 3 && parts[0] && parts[1] && parts[2]) {
-                    const day = parts[0].trim();
+                    const day  = parts[0].trim();
                     const time = parts[1].trim();
                     const room = parts[2].trim();
-                    
-                    allLabs.add(room);
-                    
+                    labSet.add(room);
                     const key = `${day}-${time}`;
-                    if (!occupiedLabs[key]) {
-                        occupiedLabs[key] = [];
-                    }
-                    occupiedLabs[key].push(room);
+                    if (!occupied[key]) occupied[key] = [];
+                    occupied[key].push(room);
                 }
             }
-            
-            return { occupiedLabs, allLabs: Array.from(allLabs).sort() };
+
+            return { occupied, allLabs: Array.from(labSet).sort() };
         }
 
-        const { occupiedLabs, allLabs } = parseCSV();
+        function setSemester(sem) {
+            currentSemester = sem;
+
+            document.getElementById('btnSpring').classList.toggle('active', sem === 'spring2026');
+            document.getElementById('btnSummer').classList.toggle('active', sem === 'summer2026');
+
+            const cfg = semesterConfig[sem];
+            document.getElementById('semesterLabel').textContent = cfg.label;
+
+            const linkContainer = document.getElementById('routineLinkContainer');
+            if (cfg.routineUrl) {
+                linkContainer.innerHTML = `<a href="${cfg.routineUrl}" target="_blank">📅 View Full Routine</a>`;
+            } else {
+                linkContainer.innerHTML = `<span class="no-link">📅 Routine link coming soon</span>`;
+            }
+
+            if (cfg.mode === 'occupied') {
+                const parsed = parseCSV(cfg.csv);
+                occupiedLabs = parsed.occupied;
+                allLabs = parsed.allLabs;
+            }
+
+            document.getElementById('results').style.display = 'none';
+        }
+
+        setSemester('spring2026');
 
         function findFreeLabs() {
-            const day = document.getElementById('daySelect').value;
+            const day  = document.getElementById('daySelect').value;
             const time = document.getElementById('timeSelect').value;
-            const resultsDiv = document.getElementById('results');
+            const resultsDiv    = document.getElementById('results');
             const resultsHeader = document.getElementById('resultsHeader');
-            const labGrid = document.getElementById('labGrid');
-            const statsDiv = document.getElementById('stats');
+            const labGrid       = document.getElementById('labGrid');
+            const statsDiv      = document.getElementById('stats');
 
             if (!day || !time) {
                 alert('Please select both day and time');
                 return;
             }
 
+            const cfg = semesterConfig[currentSemester];
             const key = `${day}-${time}`;
-            const occupied = occupiedLabs[key] || [];
-            const occupiedSet = new Set(occupied);
-            const freeLabs = allLabs.filter(lab => !occupiedSet.has(lab));
+            let freeLabs;
 
-            // Display results
+            if (cfg.mode === 'direct') {
+                freeLabs = (cfg.freeLabs[key] || []).slice().sort();
+            } else {
+                const occupied    = occupiedLabs[key] || [];
+                const occupiedSet = new Set(occupied);
+                freeLabs = allLabs.filter(lab => !occupiedSet.has(lab));
+            }
+
             resultsDiv.style.display = 'block';
-            
+
             const dayNames = {
-                'SUN': 'Sunday',
-                'MON': 'Monday',
-                'TUE': 'Tuesday',
-                'WED': 'Wednesday',
-                'THU': 'Thursday',
-                'SAT': 'Saturday'
+                SUN: 'Sunday', MON: 'Monday', TUE: 'Tuesday',
+                WED: 'Wednesday', THU: 'Thursday', SAT: 'Saturday'
             };
 
-            const timeDisplay = time === '8:00 AM' ? '8:00 AM - 11:00 AM' :
-                               time === '11:00 AM' ? '11:00 AM - 2:00 PM' :
-                               '2:00 PM - 5:00 PM';
+            const timeDisplay = time === '8:00 AM'  ? '8:00 AM – 11:00 AM' :
+                                time === '11:00 AM' ? '11:00 AM – 2:00 PM' :
+                                                     '2:00 PM – 5:00 PM';
 
-            resultsHeader.textContent = `Free Labs on ${dayNames[day]} (${timeDisplay})`;
+            resultsHeader.textContent = `Free Labs on ${dayNames[day]} (${timeDisplay}) — ${cfg.label}`;
 
             if (freeLabs.length === 0) {
                 labGrid.innerHTML = '<div class="no-results">No free labs available for this time slot</div>';
                 statsDiv.innerHTML = '<span>0 labs available</span>';
             } else {
-                labGrid.innerHTML = freeLabs.map(lab => 
+                labGrid.innerHTML = freeLabs.map(lab =>
                     `<div class="lab-card">${lab}</div>`
                 ).join('');
                 statsDiv.innerHTML = `<span>${freeLabs.length} lab${freeLabs.length !== 1 ? 's' : ''} available</span>`;
             }
 
-            // Scroll to results
             resultsDiv.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
         }
 
-        // Allow pressing Enter to search
-        document.getElementById('daySelect').addEventListener('keypress', function(e) {
+        document.getElementById('daySelect').addEventListener('keypress', e => {
             if (e.key === 'Enter') findFreeLabs();
         });
-        document.getElementById('timeSelect').addEventListener('keypress', function(e) {
+        document.getElementById('timeSelect').addEventListener('keypress', e => {
             if (e.key === 'Enter') findFreeLabs();
         });
     </script>
